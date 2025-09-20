@@ -26,9 +26,6 @@ scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/aut
 creds = ServiceAccountCredentials.from_json_keyfile_name("temp_credentials.json", scope)
 client = gspread.authorize(creds)
 
-        scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("temp_credentials.json", scope)
-        client = gspread.authorize(creds)
 
         # コメント取得
         sheet = client.open_by_key(sheet_id).sheet1
@@ -88,4 +85,5 @@ client = gspread.authorize(creds)
 
     except Exception as e:
         st.error(f"接続エラー: {e}")
+
 
