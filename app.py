@@ -6,7 +6,7 @@ import pandas as pd
 import json
 
 st.set_page_config(page_title="コメントランキングアプリ", layout="wide")
-st.title("🎯 コメントランキングアプリ（初心者向けWeb版）")
+st.title(" ぼくらの迷言集　ランキング")
 
 # --- 1. スプレッドシートURL入力 ---
 sheet_url = st.text_input("GoogleスプレッドシートのURLを入力してください")
@@ -16,10 +16,15 @@ if sheet_url:
         # URLからスプレッドシートIDを抽出
         sheet_id = sheet_url.split("/d/")[1].split("/")[0]
 
-        # --- 2. Google認証 (Secrets対応) ---
-        creds_dict = json.loads(st.secrets["GSPREAD_CREDS"])
-        with open("temp_credentials.json", "w") as f:
-            json.dump(creds_dict, f)
+      # --- 2. Google認証 (Secrets対応) ---
+creds_dict = st.secrets["GSPREAD_CREDS"]  # ← ここを修正（json.loads を削除）
+with open("temp_credentials.json", "w") as f:
+    import json
+    json.dump(creds_dict, f)
+
+scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("temp_credentials.json", scope)
+client = gspread.authorize(creds)
 
         scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("temp_credentials.json", scope)
@@ -83,3 +88,4 @@ if sheet_url:
 
     except Exception as e:
         st.error(f"接続エラー: {e}")
+
