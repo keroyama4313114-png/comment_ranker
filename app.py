@@ -3,24 +3,21 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import random
 import pandas as pd
-import json
 
 st.set_page_config(page_title="コメントランキングアプリ", layout="wide")
 st.title("ぼくらの迷言集 ランキング")
 
-# --- ここで固定のスプレッドシートIDを指定 ---
-# 例: https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/edit#gid=0
-SPREADSHEET_ID = "ここに自分のシートIDを入力"
+# --- 固定スプレッドシートURLからIDを抽出 ---
+SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1fPYBUyO_FLqMYifXJQrGblDvVDsQVF2dmRfz8NngReg/edit?gid=0#gid=0"
+SPREADSHEET_ID = SPREADSHEET_URL.split("/d/")[1].split("/")[0]
 
 try:
     # --- Google認証 (Secrets対応) ---
-    creds_dict = st.secrets["GSPREAD_CREDS"]
-    with open("temp_credentials.json", "w") as f:
-        json.dump(creds_dict, f)
+    creds_dict = st.secrets["GSPREAD_CREDS"]  # json.loads 不要
 
     scope = ["https://spreadsheets.google.com/feeds",
              "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("temp_credentials.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
 
     # --- コメント取得 ---
@@ -41,7 +38,6 @@ try:
     with col1:
         st.write(f"ラウンド: {st.session_state.round + 1} / 50 (残り {remaining})")
 
-        # --- ランダム3択 ---
         if st.session_state.sub_round == 0:
             st.write("一番好きなコメントを選んでください👇")
             for c in st.session_state.options:
@@ -63,7 +59,6 @@ try:
                     st.session_state.options = random.sample(comments, 3)
 
                     if st.session_state.round >= 50:
-                        # --- ランキング表示 ---
                         st.success("🎉 選択完了！最終ランキング")
                         ranked = sorted(st.session_state.points.items(),
                                         key=lambda x: x[1], reverse=True)
